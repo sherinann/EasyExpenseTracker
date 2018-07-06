@@ -5,7 +5,9 @@ from django.db import models
 from django.utils.datetime_safe import datetime
 
 import jwt
+import pyotp
 
+from EasyExpenseTracker.utils import send_mail
 from userprofile.exceptions import AuthenticationFailedError
 
 
@@ -17,6 +19,8 @@ class Profile(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
+
+    pass_key = models.CharField(default=pyotp.random_base32, editable=False, max_length=25)
 
     @property
     def serialize(self):
@@ -32,6 +36,23 @@ class Profile(models.Model):
             'iat': datetime.utcnow(),
         }
         return jwt.encode(payload, settings.SECRET_KEY)
+
+    def generate_otp(self):
+        otp = pyotp.TOTP(self.pass_key)
+        return otp.now()
+
+    def verify_otp(self, otp):
+        otp_obj = pyotp.TOTP(self.pass_key)
+        return otp_obj.verify(otp, valid_window=settings.OTP_VALIDITY)
+
+    def email_otp(self):
+        body = """Hi %s,
+        
+        Your OTP for logging in to Easy Expense Tracker is %s.
+        
+        Have a nice day.""".format(self.name, self.generate_otp())
+        sub = "You one time password for Easy Expense Tracker"
+        send_mail(self.email, sub, body)
 
     @classmethod
     def authenticate(cls, token: str):

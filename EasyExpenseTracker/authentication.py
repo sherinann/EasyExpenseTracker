@@ -8,11 +8,11 @@ def token_required(view):
         try:
             token = request.POST['token']
         except KeyError:
-            return generate_json(sucess=False, data={'code': TOKEN_NOT_FOUND})
+            return generate_json(success=False, data={'code': TOKEN_NOT_FOUND})
         try:
             profile = Profile.authenticate(token)
         except AuthenticationFailedError:
-            return generate_json(sucess=False, data={'code': INVALID_TOKEN})
+            return generate_json(success=False, data={'code': INVALID_TOKEN})
         request.profile = profile
         return view(request)
 

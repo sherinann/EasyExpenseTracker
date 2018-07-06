@@ -67,4 +67,4 @@ USE_TZ = True
 
 # Custom settings
 
-AUTH_TOKEN_VALIDITY = 300  # in seconds
+OTP_VALIDITY = 300  # in seconds

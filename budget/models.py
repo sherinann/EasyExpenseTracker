@@ -1,7 +1,6 @@
 import enum
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
 
 from django.db import models, transaction
 from django.db.models import prefetch_related_objects
